@@ -25,7 +25,7 @@ app.post("/signup", async (req, res) => {
     }
     else {
         res.json({
-            message: "Admin already exist"
+            message: "Admin already exists"
         })
     }
 })
@@ -40,3 +40,5 @@ app.get("/courses", (req, res) => {
         message: "courses route working"
     })
 })
+
+module.exports = app;
