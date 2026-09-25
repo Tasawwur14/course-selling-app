@@ -7,7 +7,6 @@ async function adminMiddleware (req, res, next){
         username,
         password
     })
-
     if(findAdmin){
          next()
     }

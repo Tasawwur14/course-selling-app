@@ -39,13 +39,13 @@ app.post("/login", async (req, res) => {
         password: password
     })
 
-    if(findAdmin){
+    if (findAdmin) {
         res.json({
-            message:"Login successfully"
+            message: "Login successfully"
         })
-    }else{
+    } else {
         res.json({
-            message:"invalid credentials"
+            message: "invalid credentials"
         })
     }
 
@@ -63,26 +63,46 @@ app.post("/courses", adminMiddleware, async (req, res) => {
     const description = req.body.description
     const imageLink = req.body.imageLink
     const price = req.body.price
-    const newCourse = await Course.create({
+    const isPublished = req.body.isPublished
+
+    const findCourse = await Course.findOne({
         title,
         description,
         imageLink,
-        price
+        price,
+        isPublished,
     })
-    res.json({
-        message: "Course Created successfully", 
-        courseId : newCourse._id
-    })
+
+    if (!findCourse) {
+        const newCourse = await Course.create({
+            title,
+            description,
+            imageLink,
+            price,
+            isPublished
+        })
+        res.json({
+            message: "Course Created successfully",
+            courseId: newCourse._id
+        })
+    }
+    else{
+        res.json({
+            message:"Course Already Exists"
+        })
+    }
 
 })
 
 
 
 
-app.get("/courses", adminMiddleware, (req, res) => {
+app.get("/courses", adminMiddleware, async (req, res) => {
+    const allCourses = await Course.find()
     res.json({
-        message: "courses working"
+        allCourses: allCourses
     })
+
 })
 
 module.exports = app;

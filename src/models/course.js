@@ -6,6 +6,7 @@ const courseSchema = new Schema ({
     description: String, 
     imageLink : String , 
     price : Number, 
+    isPublished: Boolean
 })
 
 const Course = mongoose.model('Course',courseSchema)

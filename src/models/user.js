@@ -6,7 +6,7 @@ const userSchema = new Schema({
     password: { type: String, required: true, min: 8 },
     purchasedCourses: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref : 'course'
+            ref : 'Course'
     }]
 })
 
