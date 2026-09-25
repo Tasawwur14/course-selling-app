@@ -17,9 +17,6 @@ app.use("/admin", adminRouter);
 app.use("/user", userRouter);
 
 
-app.get("/courses", (req, res) =>{
-
-})
 
 app.listen(3000,()=>{
     console.log("server running on port 3000")

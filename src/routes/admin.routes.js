@@ -1,5 +1,7 @@
 const express = require("express");
 const Admin = require("../models/admin");
+const adminMiddleware = require("../middleware/admin.middleware");
+const Course = require("../models/course");
 const app = express();
 
 app.use(express.json())
@@ -56,10 +58,30 @@ app.put("/updateAdmin", async (req, res) => {
 
 
 })
-
-app.get("/courses", (req, res) => {
+app.post("/courses", adminMiddleware, async (req, res) => {
+    const title = req.body.title
+    const description = req.body.description
+    const imageLink = req.body.imageLink
+    const price = req.body.price
+    const newCourse = await Course.create({
+        title,
+        description,
+        imageLink,
+        price
+    })
     res.json({
-        message: "courses route working"
+        message: "Course Created successfully", 
+        courseId : newCourse._id
+    })
+
+})
+
+
+
+
+app.get("/courses", adminMiddleware, (req, res) => {
+    res.json({
+        message: "courses working"
     })
 })
 
