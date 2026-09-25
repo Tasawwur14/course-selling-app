@@ -9,9 +9,9 @@ app.post("/signup", async (req, res) => {
     const password = req.body.password;
 
     const existingAdmin = await Admin.findOne({
-            username: username
-        })
-    
+        username: username
+    })
+
     if (!existingAdmin) {
 
         await Admin.create({
@@ -29,10 +29,32 @@ app.post("/signup", async (req, res) => {
         })
     }
 })
-app.post("/login", (req, res) => {
-    res.json({
-        message: "login route working"
+app.post("/login", async (req, res) => {
+    const username = req.body.username
+    const password = req.body.password;
+    const findAdmin = await Admin.findOne({
+        username: username,
+        password: password
     })
+
+    if(findAdmin){
+        res.json({
+            message:"Login successfully"
+        })
+    }else{
+        res.json({
+            message:"invalid credentials"
+        })
+    }
+
+})
+
+app.put("/updateAdmin", async (req, res) => {
+    const findAdmin = await Admin.findOne({
+        username: username
+    })
+
+
 })
 
 app.get("/courses", (req, res) => {
