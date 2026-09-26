@@ -6,6 +6,7 @@ const Admin = require("../models/admin");
 const adminMiddleware = require("../middleware/admin.middleware");
 const Course = require("../models/course");
 const { JsonWebTokenError } = require("jsonwebtoken");
+const userMiddleware = require("../middleware/user.middleware");
 
 const app = express();
 
@@ -21,6 +22,10 @@ app.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password,10)
 
+    const token = jwt.sign({
+        username,
+    },JWT_SECRET, {expiresIn:'1h'})
+
     if (!existingAdmin) {
 
         await Admin.create({
@@ -29,7 +34,8 @@ app.post("/signup", async (req, res) => {
         })
 
         res.json({
-            message: "Admin created successfully"
+            message: "Admin created successfully, Your JWT will expire in 1hr",
+            token : token 
         })
     }
     else {
@@ -38,9 +44,9 @@ app.post("/signup", async (req, res) => {
         })
     }
 })
-app.post("/login", async (req, res) => {
-    const username = req.body.username
-    const password = req.body.password;
+app.post("/login",  async (req, res) => {
+    const username = req.headers.username
+    const password = req.headers.password;
     
     const findAdmin = await Admin.findOne({
         username: username
@@ -62,6 +68,7 @@ app.post("/login", async (req, res) => {
 
     if (isMatch) {
        res.json({
+        message: "login successfully",
         token : token
        })
     } 
