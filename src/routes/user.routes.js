@@ -19,13 +19,19 @@ app.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
+    const token = jwt.sign({
+        username,
+    }, JWT_SECRET ,{ expiresIn: '1h'})
+
     if (!findUser) {
         await User.create({
             username: username,
             password: hashedPassword
         })
         res.json({
-            message: "User Account Created Successfully"
+            message: `User Account Created Successfully, Your JWT Expires In 1hr`  ,
+            token : token
+
         })
     }
     else {
@@ -36,8 +42,8 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/login", async (req, res) => {
-    const username = req.body.username
-    const password = req.body.password
+    const username = req.headers.username
+    const password = req.headers.password
 
     const userExisits = await User.findOne({
         username: username
@@ -85,7 +91,7 @@ app.get("/courses", async (req, res) => {
 app.post("/courses/:courseId", userMiddleware, async (req, res,) => {
 
     const courseId = req.params.courseId
-    const username = req.headers.username
+    const username = req.username
     const findUser = await User.findOne({
         username: username
 
