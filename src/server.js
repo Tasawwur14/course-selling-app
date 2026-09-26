@@ -1,13 +1,16 @@
 const dotenv = require("dotenv")
+dotenv.config();
+const JWT_SECRET = process.env.JWT_SECRET
 const connectDB = require("./config/db")
+connectDB();
 const adminRouter = require("./routes/admin.routes");
 const userRouter = require("./routes/user.routes")
 const express = require("express")
 const app = express();
 
 
-dotenv.config();
-connectDB();
+
+
 
 app.use(express.json());
 

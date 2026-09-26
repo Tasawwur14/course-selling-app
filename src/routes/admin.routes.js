@@ -1,8 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const JWT_SECRET = process.env.JWT_SECRET
 const Admin = require("../models/admin");
 const adminMiddleware = require("../middleware/admin.middleware");
 const Course = require("../models/course");
+const { JsonWebTokenError } = require("jsonwebtoken");
+
 const app = express();
 
 app.use(express.json())
@@ -52,10 +56,14 @@ app.post("/login", async (req, res) => {
 
     const isMatch = await bcrypt.compare(password,findAdmin.password)
 
+    const token = jwt.sign({
+        username
+    }, JWT_SECRET)
+
     if (isMatch) {
-        res.json({
-            message: "Login successfully"
-        })
+       res.json({
+        token : token
+       })
     } 
     else{
         res.json({

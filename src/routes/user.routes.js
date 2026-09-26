@@ -1,5 +1,7 @@
 const express = require("express")
 const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const JWT_SECRET = process.env.JWT_SECRET;
 const User = require("../models/user");
 const userMiddleware = require("../middleware/user.middleware");
 const Course = require("../models/course");
@@ -48,10 +50,14 @@ app.post("/login", async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password,userExisits.password)
+    
+    const token = jwt.sign({
+        username : username 
+    }, JWT_SECRET)
 
     if(isMatch){
         res.json({
-            message: "login successfully"
+            token : token
         })
     }
     else{
@@ -99,7 +105,7 @@ app.post("/courses/:courseId", userMiddleware, async (req, res,) => {
 
 })
 app.get("/courses/purchased", userMiddleware, async (req, res) => {
-    const username = req.headers.username
+    const username = req.username
     const findUser = await User.findOne({
         username: username,
     }).populate("purchasedCourses")
