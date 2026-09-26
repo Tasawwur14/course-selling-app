@@ -1,4 +1,5 @@
 const express = require("express")
+const bcrypt = require("bcryptjs")
 const User = require("../models/user");
 const userMiddleware = require("../middleware/user.middleware");
 const Course = require("../models/course");
@@ -13,10 +14,13 @@ app.post("/signup", async (req, res) => {
     const findUser = await User.findOne({
         username: username
     })
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
     if (!findUser) {
         await User.create({
             username: username,
-            password: password
+            password: hashedPassword
         })
         res.json({
             message: "User Account Created Successfully"
@@ -30,41 +34,49 @@ app.post("/signup", async (req, res) => {
 })
 
 app.post("/login", async (req, res) => {
-        const username = req.body.username
-        const password = req.body.password
+    const username = req.body.username
+    const password = req.body.password
 
-        const userExisits = await User.findOne({
-            username: username,
-            password: password
+    const userExisits = await User.findOne({
+        username: username
+    })
+
+    if (!userExisits) {
+       return res.json({
+            message: "User Does not exisits"
+        });
+    }
+
+    const isMatch = await bcrypt.compare(password,userExisits.password)
+
+    if(isMatch){
+        res.json({
+            message: "login successfully"
         })
+    }
+    else{
+        res.json({
+            message: "Invalid credentials"
+        })
+    }
 
-        if (!userExisits) {
-            res.json({
-                message: "Invalid credentials"
-            })
-        }
-        else {
-            res.json({
-                message: "Login Successfully"
-            })
-        }
+}
+)
 
-    })
+app.get("/courses", async (req, res) => {
 
-app.get("/courses", async (req, res)=>{
-    
     const allCourses = await Course.find({
-        isPublished : true
+        isPublished: true
     })
-    
+
     res.json({
-        allCourses:allCourses
+        allCourses: allCourses
     })
 
 
 })
 
-app.post("/courses/:courseId",userMiddleware, async (req, res,) =>{
+app.post("/courses/:courseId", userMiddleware, async (req, res,) => {
 
     const courseId = req.params.courseId
     const username = req.headers.username
@@ -72,27 +84,27 @@ app.post("/courses/:courseId",userMiddleware, async (req, res,) =>{
         username: username
 
     })
-    if(!findUser){
+    if (!findUser) {
         res.json({
-            message:"User does not exists"
+            message: "User does not exists"
         })
     }
-    else{
+    else {
         findUser.purchasedCourses.push(courseId);
         await findUser.save()
-         res.json({
-            message:"purchase complete"
-         })
+        res.json({
+            message: "purchase complete"
+        })
     }
 
 })
-app.get("/courses/purchased",userMiddleware, async (req, res)=>{
+app.get("/courses/purchased", userMiddleware, async (req, res) => {
     const username = req.headers.username
     const findUser = await User.findOne({
-        username : username , 
+        username: username,
     }).populate("purchasedCourses")
 
-   res.json({
+    res.json({
         purchasedCourses: findUser.purchasedCourses
     });
 

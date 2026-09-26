@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcryptjs")
 const Admin = require("../models/admin");
 const adminMiddleware = require("../middleware/admin.middleware");
 const Course = require("../models/course");
@@ -14,11 +15,13 @@ app.post("/signup", async (req, res) => {
         username: username
     })
 
+    const hashedPassword = await bcrypt.hash(password,10)
+
     if (!existingAdmin) {
 
         await Admin.create({
             username: username,
-            password: password
+            password: hashedPassword
         })
 
         res.json({
@@ -34,18 +37,29 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
     const username = req.body.username
     const password = req.body.password;
+    
     const findAdmin = await Admin.findOne({
-        username: username,
-        password: password
+        username: username
+        
     })
+    
+     if (!findAdmin) {
+        return res.json({
+            
+            message: "User does not exists"
+        });
+    }
 
-    if (findAdmin) {
+    const isMatch = await bcrypt.compare(password,findAdmin.password)
+
+    if (isMatch) {
         res.json({
             message: "Login successfully"
         })
-    } else {
+    } 
+    else{
         res.json({
-            message: "invalid credentials"
+            message:"Invalid Creadentials"
         })
     }
 
